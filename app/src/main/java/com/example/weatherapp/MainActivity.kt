@@ -3,9 +3,8 @@ package com.example.weatherapp
 import android.os.AsyncTask
 import android.os.Bundle
 import android.view.View
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.view.inputmethod.InputMethodManager
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
 import java.net.URL
@@ -14,12 +13,41 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    val CITY: String = "Las Vegas, NV, USA"
+    var CITY: String = "Las Vegas, NV, USA"
     var API: String = "e65772382e379b9648b55b8b7c22766f" // Use API key
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // finding the button
+        val button = findViewById<Button>(R.id.button)
+        // finding the editText
+        val editText = findViewById<EditText>(R.id.editText)
+        // setting onClickListener
+        button.setOnClickListener {
+            // gets current view
+            val view: View? = this.currentFocus
+
+            //checks if view is not null
+            if (view != null) {
+                //creates variable for input manager and intializes it
+                val inputMethodManager =
+                    getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                // hiding keyboard ..
+                inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+            }
+
+            // getting the user input
+            val text = editText.text
+            // show user input as a toast popup
+            Toast.makeText(this, "City Updated to " + text, Toast.LENGTH_SHORT).show()
+            // assign to CITY variable
+            CITY = text.toString()
+            weatherTask().execute()
+            // clears the editText
+            editText.text = null
+        }
 
         weatherTask().execute()
 
@@ -42,6 +70,10 @@ class MainActivity : AppCompatActivity() {
                 )
             }catch (e: Exception){
                 response = null
+//                response = URL("https://api.openweathermap.org/data/2.5/weather?q=Las+Vegas,+NV,+USA&units=imperial&appid=$API").readText(
+//                    Charsets.UTF_8
+//                )
+//                CITY = "Las Vegas, NV, USA"
             }
             return response
         }
@@ -59,9 +91,9 @@ class MainActivity : AppCompatActivity() {
 
                 val updatedAt:Long = jsonObj.getLong("dt")
                 val updatedAtText = "Updated at: "+ SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(Date(updatedAt*1000))
-                val temp = main.getString("temp")+"°F"
-                val tempMin = "Min Temp: " + main.getString("temp_min")+"°F"
-                val tempMax = "Max Temp: " + main.getString("temp_max")+"°F"
+                val temp = main.getString("temp").split(".")
+                val tempMin = main.getString("temp_min").split(".")
+                val tempMax = main.getString("temp_max").split(".")
                 val pressure = main.getString("pressure")
                 val humidity = main.getString("humidity")
 
@@ -76,9 +108,9 @@ class MainActivity : AppCompatActivity() {
                 findViewById<TextView>(R.id.address).text = address
                 findViewById<TextView>(R.id.updated_at).text =  updatedAtText
                 findViewById<TextView>(R.id.status).text = weatherDescription.capitalize()
-                findViewById<TextView>(R.id.temp).text = temp
-                findViewById<TextView>(R.id.temp_min).text = tempMin
-                findViewById<TextView>(R.id.temp_max).text = tempMax
+                findViewById<TextView>(R.id.temp).text = temp[0] +"°F"
+                findViewById<TextView>(R.id.temp_min).text = "Min Temp: " + tempMin[0]+"°F"
+                findViewById<TextView>(R.id.temp_max).text = "Max Temp: " + tempMax[0]+"°F"
                 findViewById<TextView>(R.id.sunrise).text = SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(Date(sunrise*1000))
                 findViewById<TextView>(R.id.sunset).text = SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(Date(sunset*1000))
                 findViewById<TextView>(R.id.wind).text = windSpeed
