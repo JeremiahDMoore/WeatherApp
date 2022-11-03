@@ -2,6 +2,7 @@ package com.example.weatherapp
 
 import android.os.AsyncTask
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
@@ -40,15 +41,13 @@ class MainActivity : AppCompatActivity() {
 
             // getting the user input
             val text = editText.text
-            // show user input as a toast popup
-            Toast.makeText(this, "City Updated to " + text, Toast.LENGTH_SHORT).show()
             // assign to CITY variable
             CITY = text.toString()
             weatherTask().execute()
             // clears the editText
             editText.text = null
-        }
 
+        }
         weatherTask().execute()
 
     }
@@ -69,16 +68,15 @@ class MainActivity : AppCompatActivity() {
                     Charsets.UTF_8
                 )
             }catch (e: Exception){
-                response = null
-//                response = URL("https://api.openweathermap.org/data/2.5/weather?q=Las+Vegas,+NV,+USA&units=imperial&appid=$API").readText(
-//                    Charsets.UTF_8
-//                )
-//                CITY = "Las Vegas, NV, USA"
+                Log.d("TAG", "City not found!")
+                response = URL("https://api.openweathermap.org/data/2.5/weather?q=Las+Vegas,+NV,+USA&units=imperial&appid=$API").readText(
+                    Charsets.UTF_8
+                )
+                CITY = "Las Vegas, NV, USA"
             }
             return response
         }
 
-//        https://api.openweathermap.org/data/2.5/weather?q=$CITY&appid=
         override fun onPostExecute(result: String?) {
             super.onPostExecute(result)
             try {
@@ -88,15 +86,13 @@ class MainActivity : AppCompatActivity() {
                 val sys = jsonObj.getJSONObject("sys")
                 val wind = jsonObj.getJSONObject("wind")
                 val weather = jsonObj.getJSONArray("weather").getJSONObject(0)
-
                 val updatedAt:Long = jsonObj.getLong("dt")
-                val updatedAtText = "Updated at: "+ SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.ENGLISH).format(Date(updatedAt*1000))
+                val updatedAtText = "Updated at: "+ SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.ENGLISH).format(Date(updatedAt*1000))
                 val temp = main.getString("temp").split(".")
                 val tempMin = main.getString("temp_min").split(".")
                 val tempMax = main.getString("temp_max").split(".")
                 val pressure = main.getString("pressure")
                 val humidity = main.getString("humidity")
-
                 val sunrise:Long = sys.getLong("sunrise")
                 val sunset:Long = sys.getLong("sunset")
                 val windSpeed = wind.getString("speed")
