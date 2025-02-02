@@ -15,7 +15,7 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     var CITY: String = "Las Vegas, NV, USA"
-    var API: String = "e65772382e379b9648b55b8b7c22766f" // Use API key
+    var API: String = "YOUR_API_KEY" // Use OpenWeather API key
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
